@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VetTechApi.Data;
 using VetTechApi.Models;
@@ -11,23 +10,78 @@ namespace VetTechApi.Controllers
     public class TutoresController : ControllerBase
     {
         private readonly AppDbContext _context;
+
         public TutoresController(AppDbContext context)
         {
             _context = context;
         }
+
+
         [HttpGet]
-        public async
-            Task<ActionResult<IEnumerable<Tutor>>>
-            GetProfessores()
+        public async Task<ActionResult<IEnumerable<Tutor>>> GetTutores()
         {
             return await _context.tutors.ToListAsync();
         }
-        [HttpPost]
-        public async Task<IActionResult> CriarProfessor(Tutor tutores)
+
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tutor>> GetTutor(int id)
         {
-            _context.tutors.Add(tutores);
+            var tutor = await _context.tutors.FindAsync(id);
+
+            if (tutor == null)
+            {
+                return NotFound();
+            }
+
+            return tutor;
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult<Tutor>> PostTutor(Tutor tutor)
+        {
+            _context.tutors.Add(tutor);
             await _context.SaveChangesAsync();
-            return Ok("Professor salvo com sucesso!!!");
+
+            return CreatedAtAction(
+                nameof(GetTutor),
+                new { id = tutor.Id },
+                tutor
+            );
+        }
+
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTutor(int id, Tutor tutor)
+        {
+            if (id != tutor.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(tutor).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTutor(int id)
+        {
+            var tutor = await _context.tutors.FindAsync(id);
+
+            if (tutor == null)
+            {
+                return NotFound();
+            }
+
+            _context.tutors.Remove(tutor);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

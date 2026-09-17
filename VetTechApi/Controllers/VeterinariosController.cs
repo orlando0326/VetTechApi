@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VetTechApi.Data;
 using VetTechApi.Models;
@@ -11,24 +10,79 @@ namespace VetTechApi.Controllers
     public class VeterinariosController : ControllerBase
     {
         private readonly AppDbContext _context;
+
         public VeterinariosController(AppDbContext context)
         {
             _context = context;
         }
+
         [HttpGet]
-        public async
-          Task<ActionResult<IEnumerable<Veterinario>>>
-          GetProfessores()
+        public async Task<ActionResult<IEnumerable<Veterinario>>> GetVeterinarios()
         {
             return await _context.veterinarios.ToListAsync();
         }
+
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Veterinario>> GetVeterinario(int id)
+        {
+            var veterinario = await _context.veterinarios.FindAsync(id);
+
+            if (veterinario == null)
+            {
+                return NotFound();
+            }
+
+            return veterinario;
+        }
+
+
         [HttpPost]
-        public async Task<IActionResult> CriarProfessor(Veterinario veterinario)
+        public async Task<ActionResult<Veterinario>> PostVeterinario(Veterinario veterinario)
         {
             _context.veterinarios.Add(veterinario);
             await _context.SaveChangesAsync();
-            return Ok("Veterinario salvo com sucesso!!!");
+
+            return CreatedAtAction(
+                nameof(GetVeterinario),
+                new { id = veterinario.Id },
+                veterinario
+            );
+        }
+
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutVeterinario(
+            int id,
+            Veterinario veterinario)
+        {
+            if (id != veterinario.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(veterinario).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVeterinario(int id)
+        {
+            var veterinario = await _context.veterinarios.FindAsync(id);
+
+            if (veterinario == null)
+            {
+                return NotFound();
+            }
+
+            _context.veterinarios.Remove(veterinario);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
-
