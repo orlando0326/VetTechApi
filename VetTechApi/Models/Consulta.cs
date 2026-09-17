@@ -1,18 +1,17 @@
-﻿using Microsoft.VisualBasic;
-using System.Data;
+﻿using System.Text.Json.Serialization;
 
 namespace VetTechApi.Models
 {
     public class Consulta
     {
-        public int Id { get; set; }
-
-        public DateAndTime Datahora {  get; set; }
-
-        public string motivo { get; set; }
-        public int VeterinarioId { get; set; }
-
+        public int id { get; set; }
+        public DateTime dataHora { get; set; }
+        public string Motivo { get; set; }
         public int petId { get; set; }
-
+        [JsonIgnore]
+        public Pet? pet { get; set; }
+        public int veterinarioId { get; set; }
+        [JsonIgnore]
+        public Veterinario? veterinario { get; set; }
     }
 }
